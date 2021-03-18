@@ -133,6 +133,25 @@ class MethodBuilder(Builder):
         args.extract()
         return args.sanitize()
 
+    # def is_first_line_documented(self, result):
+    #     """
+    #     A boolean function that determines weather the first line has
+    #     a docstring or not
+    #     Parameters
+    #     ----------
+    #     MethodInterface result: Is a method interface class that could be
+    #     subject to be taking a docstring
+    #     str line: The line of the found method
+    #     """
+    #     returned = False
+    #     for x in range(result.start, result.end):
+    #         line = linecache.getline(result.filename, x)
+    #         if self.config.get("open") in line:
+    #             returned = True
+    #             break
+    #     linecache.clearcache()
+    #     return returned
+
     def is_first_line_documented(self, result):
         """
         A boolean function that determines weather the first line has
@@ -144,11 +163,15 @@ class MethodBuilder(Builder):
         str line: The line of the found method
         """
         returned = False
-        for x in range(result.start, result.end):
-            line = linecache.getline(result.filename, x)
-            if self.config.get("open") in line:
-                returned = True
-                break
+        read_first_line=linecache.getline(result.filename, result.start)
+        read_second_line=linecache.getline(result.filename, result.start+1)
+        finalTwoLines=read_first_line+"\n"+read_second_line
+        pattern = r'^[\s]*(def)\s[a-zA-Z0-9\_]*\([a-zA-Z0-9\_\,\s\=\[\]\(\)\{\}\*\&\%\!\-\"\'\+\;\.]*\)(\s\:|\:)[\n]*[\s]*(""")'  
+        match = re.search(pattern,finalTwoLines)
+        if match :
+            returned = True 
+        else:
+            returned = False
         linecache.clearcache()
         return returned
 
